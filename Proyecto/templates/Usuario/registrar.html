@@ -1,0 +1,27 @@
+<!-- {% extends 'base/base.html' %} -->
+
+{% block content %}
+<form method='post'>
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="form_group">
+                <label>Nombre</label>
+                <input class="form-control" type="text" name="first_name">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input class="form-control" type="text" name="last_name">
+            </div>
+        </div>
+    </div>
+
+
+    {{ form.as_p}}
+    <button type="submit" class="btn btn-primary";>Guardar</button>
+</form>
+{% endblock %}
