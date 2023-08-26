@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>#</td>
+            <td>Placa vehiculo</td>
+            <td>Marca vehiculo</td>
+            <td>Modelo</td>
+            <td>Estado del vehiculo</td>
+            <td>Acciones</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% if object_list %}
+        {% for vehiculo in object_list %}
+        <tr>
+            <td>{{ vehiculo.id}}</td>
+            <td>{{ vehiculo.placa}}</td>
+            <td>{{ vehiculo.marca}}</td>
+            <td>{{ vehiculo.modelo}}</td>
+            <td>{{ vehiculo.estado_vehiculo}}</td>
+            <td>
+                <a class="btn btn-primary" href="{%url 'vehiculo_editar' vehiculo.id %}">
+                Editar </a>
+                <a class="btn btn-danger" href="{%url 'vehiculo_eliminar' vehiculo.id %}">
+                Eliminar </a>
+            </td>
+        {% endfor %}
+        {% else %}
+        <h1>No hay registros de vehiculos</h1>
+        {% endif %}
+        </tr>
+    </tbody>
+</table>
+
+{% endblock %}
