@@ -1,0 +1,57 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>#</td>
+            <td>Nombre</td>
+            <td>Apellido</td>
+            <td>Fecha de nacimiento</td>
+            <td>Estado Conductor</td>
+            <td>Vehiculo</td>
+            <td>Acciones</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% if object_list %}
+        {% for conductor in object_list %}
+        <tr>
+            <td>{{conductor.id}}</td>
+            <td>{{conductor.name}}</td>
+            <td>{{conductor.lastname}}</td>
+            <td>{{conductor.birthdate}}</td>
+            <td>{{conductor.estadoC}}</td>
+            <td>{{conductor.vehiculo.placa}}</td>
+            <td>
+                <a class="btn btn-primary" onclick="return abrir_modal('{% url 'Conductor_editar' conductor.id %}')" role="button"> <i class="fas fa-edit"></i> Editar</a>
+                <a class="btn btn-danger" href="{% url 'Conductor_eliminar' conductor.id %}"><i class="fas fa-trash"></i> Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="6">No hay registro de conductores</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; Primero</a>
+        <a href="?page={{ page_obj.previous_page_number }}">Previo</a>
+        {% endif %}
+        <span class="current">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Último &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+<a class="btn btn-primary" onclick="return abrir_modal('{% url 'Conductor_crear' %}')" role="button"> <i class="fas fa-plus"></i> Nuevo</a>
+
+{% endblock %}
