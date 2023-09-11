@@ -1,0 +1,10 @@
+{% extends 'base/base_sin_menu.html' %}
+
+{% block content %}
+<form method='post'>
+    {% csrf_token %}
+    <h3>¿Desea eliminar el registro de {{object.name}}?</h3>
+    <button class="btn btn-danger" type="submit" class="btn btn-primary";><i class="fas fa-trash"></i> Si, eliminar</button>
+    <a class="btn btn-default" href="{% url 'Conductor_listar' %}">Cancelar</a>
+</form>
+{% endblock %}
