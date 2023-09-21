@@ -1,0 +1,161 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<br><br>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Descripción</th>
+            <th>Fecha</th>
+            <th>Cantidad</th>
+            <th>Estado Liquidación</th>
+            <th>Conductor</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if object_list %}
+        {% for liquidacion in object_list %}
+        <tr>
+            <td>{{ liquidacion.id }}</td>
+            <td>{{ liquidacion.description }}</td>
+            <td>{{ liquidacion.date }}</td>
+            <td>{{ liquidacion.amount }}</td>
+            <td>{{ liquidacion.estadoL }}</td>
+            <td>{{ liquidacion.conductor.name}}</td>
+            <td>
+                <a class="btn btn-primary" onclick="return abrir_modal('{% url 'Liquidacion_editar' liquidacion.id %}')" role="button"> <i class="fas fa-edit"></i> Editar</a>
+                <a class="btn btn-danger" href="{% url 'Liquidacion_eliminar' liquidacion.id %}"> <i class="fas fa-trash"></i> Eliminar</a>
+                <button class="btn btn-primary" onclick="abrir_modal_estado({{ liquidacion.id }})">Cambiar Estado</button>
+            </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="6">No hay registro de liquidaciones</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Conductor</th>
+            <th>Liquidaciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if totales_por_conductor %}
+            {% for conductor_id, total_liquidaciones in totales_por_conductor.items %}
+                <tr>
+                    <td>{{ conductor_id }}</td>
+                    <td>{{ total_liquidaciones }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        <tr>
+            <td>Total General</td>
+            <td>{{ total_general }}</td>
+        </tr>
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; Primero</a>
+        <a href="?page={{ page_obj.previous_page_number }}">Previo</a>
+        {% endif %}
+        <span class="current">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Último &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+<a class="btn btn-primary" onclick="return abrir_modal('{% url 'Liquidacion_crear' %}')" role="button"> <i class="fas fa-plus"></i> Nuevo</a>
+<br>
+<br>
+<div>
+    <a class="btn btn-primary" href="{% url 'reporte_liquidaciones' %}" target="_blank"> <i class="fas fa-file-pdf"></i> Generar Reporte PDF</a>
+</div>
+
+<!-- Modal para Cambiar Estado -->
+<div class="modal" id="modalCambiarEstado">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Estado</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="cambiarEstadoForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="estadoL">Estado Liquidación</label>
+                        <select class="form-control" id="estadoL" name="estadoL">
+                            <option value="al día">Al día</option>
+                            <option value="pendiente">Pendiente</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarCambioEstado()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function abrir_modal_estado(liquidacionId) {
+        // Configura el formulario del modal con el estado actual
+        var estadoActual = $("tr[data-liquidacion-id='" + liquidacionId + "'] td:nth-child(5)").text();
+        $("#estadoL").val(estadoActual);
+
+        // Asigna el ID de la liquidación al botón de guardar del modal
+        $("#guardarCambioEstado").data("liquidacion-id", liquidacionId);
+
+        // Abre el modal
+        $("#modalCambiarEstado").modal("show");
+    }
+
+    function guardarCambioEstado() {
+        // Obtén el nuevo estado seleccionado
+        var nuevoEstado = $("#estadoL").val();
+        // Obtén el ID de la liquidación a actualizar
+        var liquidacionId = $("#guardarCambioEstado").data("liquidacion-id");
+
+        // Realiza una solicitud AJAX para guardar el cambio de estado
+        $.ajax({
+            url: '/cambiar_estado_liquidacion/' + liquidacionId + '/',
+            type: 'POST',
+            data: { 'estadoL': nuevoEstado },
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    // Actualiza la fila correspondiente en la tabla
+                    $("tr[data-liquidacion-id='" + liquidacionId + "'] td:nth-child(5)").text(nuevoEstado);
+
+                    // Cierra el modal
+                    $("#modalCambiarEstado").modal("hide");
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr.statusText);
+            }
+        });
+    }
+</script>
+
+
+{% endblock %}
